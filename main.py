@@ -9,11 +9,8 @@ def initialize():
 
 def game_loop(game_manager):
   # Game loop
-  while 1:
-    for event in pygame.event.get():
-      if event.type == QUIT:
-        return
-
+  while not game_manager.should_quit:
+    game_manager.update()
     game_manager.render()
     pygame.display.flip()
 
