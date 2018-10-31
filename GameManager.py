@@ -10,8 +10,7 @@ class GameManager:
   score = 0
 
   # Fruit variables
-  fruit_x = 0
-  fruit_y = 0
+  fruit_position = (0, 0)
 
   # Snake variables
   snake_position = []
@@ -39,21 +38,25 @@ class GameManager:
     self.background = self.background.convert()
     self.background.fill((250, 250, 250))
 
-    self.snake_position.insert(0, (randint(0, self.tiles_horizontally), randint(0, self.tiles_vertically)))
-
-    self.fruit_x = randint(0, self.tiles_horizontally)
-    self.fruit_y = randint(0, self.tiles_vertically)
+    self.snake_position.insert(0,  (randint(0, self.tiles_horizontally), randint(0, self.tiles_vertically)))
+    self.random_fruit_position()
 
     self.snake_image = pygame.image.load("assets/imgs/snake.bmp").convert()
     self.fruit_image = pygame.image.load("assets/imgs/fruit.bmp").convert()
   
+  def random_fruit_position (self):
+    self.fruit_position = (randint(0, self.tiles_horizontally), randint(0, self.tiles_vertically))
+
   def render(self):
+    self.background = pygame.Surface(self.screen.get_size())
+    self.background = self.background.convert()
+    self.background.fill((250, 250, 250))
     self.screen.blit(self.background, (0, 0))
 
     for snake_tile in self.snake_position:
       self.screen.blit(self.snake_image, (snake_tile[0] * self.tile_size, snake_tile[1] * self.tile_size))
 
-    self.screen.blit(self.fruit_image, (self.fruit_x, self.fruit_y))
+    self.screen.blit(self.fruit_image, (self.fruit_position[0] * self.tile_size, self.fruit_position[1] * self.tile_size))
   
     font = pygame.font.Font(None, 36)
     text = font.render(str(self.score), 1, (10, 10, 10))
@@ -70,9 +73,9 @@ class GameManager:
       elif event.type == pygame.KEYDOWN:
         if (event.key == pygame.K_UP and (self.snake_direction != 2 or self.snake_size == 1)):
           self.snake_direction = 0
-        elif (event.key == pygame.K_RIGHT  and (self.snake_direction != 3 or self.snake_size == 1)):
+        elif (event.key == pygame.K_RIGHT and (self.snake_direction != 3 or self.snake_size == 1)):
           self.snake_direction = 1
-        elif (event.key == pygame.K_DOWN  and (self.snake_direction != 0 or self.snake_size == 1)):
+        elif (event.key == pygame.K_DOWN and (self.snake_direction != 0 or self.snake_size == 1)):
           self.snake_direction = 2
         elif (event.key == pygame.K_LEFT and (self.snake_direction != 1 or self.snake_size == 1)):
           self.snake_direction = 3
@@ -88,5 +91,9 @@ class GameManager:
         self.snake_position.insert(len(self.snake_position), (self.snake_position[-1][0], (self.snake_position[-1][1] + 1) % self.tiles_vertically))
       elif self.snake_direction == 3:
         self.snake_position.insert(len(self.snake_position), ((self.snake_position[-1][0] - 1 + 20) % self.tiles_horizontally, self.snake_position[-1][1]))
-        
-      self.snake_position.pop(0)
+      
+      if (self.snake_position[-1] == self.fruit_position):
+        self.score += 1
+        self.random_fruit_position()
+      else:
+        self.snake_position.pop(0)
