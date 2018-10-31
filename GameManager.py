@@ -62,8 +62,8 @@ class GameManager:
     text = font.render(str(self.score), 1, (10, 10, 10))
     textpos = text.get_rect()
     textpos.centerx = self.background.get_rect().centerx
-    self.background.blit(text, textpos)
-
+    self.screen.blit(text, textpos)
+  
   def update(self):
     for event in pygame.event.get():
       if event.type == QUIT:
