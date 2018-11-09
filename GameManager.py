@@ -43,6 +43,7 @@ class GameManager:
     self.snake_position = []
     self.snake_direction = 0
     self.snake_size = 1
+    self.can_move = True
 
     # Auxiliar variables
     self.should_quit = False
@@ -88,14 +89,16 @@ class GameManager:
         return
 
       elif event.type == pygame.KEYDOWN:
-        if (event.key == pygame.K_UP and (self.snake_direction != 2 or self.snake_size == 1)):
-          self.snake_direction = 0
-        elif (event.key == pygame.K_RIGHT and (self.snake_direction != 3 or self.snake_size == 1)):
-          self.snake_direction = 1
-        elif (event.key == pygame.K_DOWN and (self.snake_direction != 0 or self.snake_size == 1)):
-          self.snake_direction = 2
-        elif (event.key == pygame.K_LEFT and (self.snake_direction != 1 or self.snake_size == 1)):
-          self.snake_direction = 3
+        if (self.can_move):
+          if (event.key == pygame.K_UP and (self.snake_direction != 2 or self.snake_size == 1)):
+            self.snake_direction = 0
+          elif (event.key == pygame.K_RIGHT and (self.snake_direction != 3 or self.snake_size == 1)):
+            self.snake_direction = 1
+          elif (event.key == pygame.K_DOWN and (self.snake_direction != 0 or self.snake_size == 1)):
+            self.snake_direction = 2
+          elif (event.key == pygame.K_LEFT and (self.snake_direction != 1 or self.snake_size == 1)):
+            self.snake_direction = 3
+          self.can_move = False
         elif (event.key == pygame.K_r and self.game_over):
           self.restart()
 
@@ -104,6 +107,7 @@ class GameManager:
       current_tick = pygame.time.get_ticks()
       if (current_tick - self.last_tick > self.update_rate):
         self.last_tick = current_tick
+        self.can_move = True
         if self.snake_direction == 0:
           next_position = (self.snake_position[-1][0], (self.snake_position[-1][1] - 1 + 20) % self.tiles_vertically)
         elif self.snake_direction == 1:
