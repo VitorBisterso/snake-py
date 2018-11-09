@@ -4,7 +4,7 @@ from random import randint
 from pygame import font
 from pygame.locals import *
 
-class GameManager:  
+class GameManager:
   def __init__(self, th, tv, ts):
     # Inicializa as variáveis para o tamanho da tela
     self.tiles_horizontally = th
@@ -23,9 +23,10 @@ class GameManager:
     self.background = self.background.convert()
     self.background.fill((250, 250, 250))
 
-    # Carrega as imagens da fruta e da cobra
+    # Carrega as imagens da fruta, da cobra e do plano de fundo do menu
     self.snake_image = pygame.image.load("assets/imgs/snake.bmp").convert()
     self.fruit_image = pygame.image.load("assets/imgs/fruit.bmp").convert()
+    self.bg = pygame.image.load("assets/imgs/menu_bg.png")
   
     # Inicializa os textos
     font = pygame.font.Font(None, 36)
@@ -34,7 +35,64 @@ class GameManager:
     self.restart_text_pos.centerx = self.background.get_rect().centerx
     self.restart_text_pos.centery = self.background.get_rect().centery
 
-    self.restart()
+    self.menu_text_title = font.render("Snake", 1, (10, 10, 10))
+    self.menu_text_title_pos = self.menu_text_title.get_rect()
+    self.menu_text_title_pos.centerx = self.background.get_rect().centerx
+    self.menu_text_title_pos.centery = self.background.get_rect().centery - 200
+
+    # Variavel auxiliar (indica se o menu deve ser mostrado)
+    self.menu = True
+
+    self.game_menu()
+
+  def quitgame(self):
+    pygame.quit()
+    quit()
+  
+  def options(self):
+    print('options')
+
+  def build_button(self, x, y, width, height, label, action):
+    # desenha o botao
+    pygame.draw.rect(self.screen, (151, 156, 163), Rect(x, y, width, height))
+
+    #desenha o texto do botao
+    button_text_font = pygame.font.Font(None, 30)
+    button_text = button_text_font.render(label, 1, (0, 0, 0))
+    button_text_pos = button_text.get_rect()
+    button_text_pos.center = (x+(width/2), y+(height/2))
+    self.screen.blit(button_text, button_text_pos)
+
+    
+    mouse_pos = pygame.mouse.get_pos()
+
+    # verifica se foi clicado com o botao esquerdo
+    if pygame.mouse.get_pressed()[0] == 1:
+      # verifica se a posicao do mouse esta dentro do botao
+      if x+width > mouse_pos[0] > x and y+height > mouse_pos[1] > y:
+        action()
+
+  # Mostra o menu
+  def game_menu(self):
+    while self.menu:
+      
+      # Desenha o plano de fundo
+      self.screen.blit(self.bg, (0, 0))
+
+      # Desenha o titulo do jogo
+      self.screen.blit(self.menu_text_title, self.menu_text_title_pos)
+
+      # Constroi os botoes
+      self.build_button(self.background.get_rect().centerx-125, self.background.get_rect().centery - 150, 250, 50, "Play", self.restart)
+      self.build_button(self.background.get_rect().centerx-125, self.background.get_rect().centery - 50, 250, 50, "Options", self.options)
+      self.build_button(self.background.get_rect().centerx-125, self.background.get_rect().centery + 50, 250, 50, "Quit", self.quitgame)
+
+      for event in pygame.event.get():
+        if event.type == QUIT:
+          pygame.quit()
+          quit()
+
+      pygame.display.flip()
 
   # Randomiza a posição da fruta
   def random_fruit_position(self):
@@ -43,6 +101,9 @@ class GameManager:
 
   # Reinicia todas as variáveis para recomeçar o jogo
   def restart(self):
+
+    self.menu = False
+
     # Variáveis de jogo
     self.score = 1
     self.game_over = False
@@ -106,6 +167,10 @@ class GameManager:
             self.snake_direction = 2
           elif (event.key == pygame.K_LEFT and (self.snake_direction != 1 or self.snake_size == 1)):
             self.snake_direction = 3
+          elif (event.key == pygame.K_ESCAPE):
+            self.menu = True
+            self.game_menu()
+            break
 
           self.can_move = False
         elif (event.key == pygame.K_r and self.game_over):
