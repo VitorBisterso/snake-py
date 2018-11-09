@@ -27,6 +27,13 @@ class GameManager:
     self.snake_image = pygame.image.load("assets/imgs/snake.bmp").convert()
     self.fruit_image = pygame.image.load("assets/imgs/fruit.bmp").convert()
   
+    # Inicializa os textos
+    font = pygame.font.Font(None, 36)
+    self.restart_text = font.render("Press 'r' to restart", 1, (10, 10, 10))
+    self.restart_text_pos = self.restart_text.get_rect()
+    self.restart_text_pos.centerx = self.background.get_rect().centerx
+    self.restart_text_pos.centery = self.background.get_rect().centery
+
     self.restart()
 
   # Randomiza a posição da fruta
@@ -66,7 +73,6 @@ class GameManager:
     self.screen.blit(self.background, (0, 0))
 
     # Desenha a cobra
-    display_text = str(self.score)
     for snake_tile in self.snake_position:
       self.screen.blit(self.snake_image, (snake_tile[0] * self.tile_size, snake_tile[1] * self.tile_size))
 
@@ -75,23 +81,12 @@ class GameManager:
 
     # Desenha a pontuação ou fim de jogo
     if (self.game_over):
-      display_text = "Game Over! Your score: " + str(self.score)
-      
-      font = pygame.font.Font(None, 36)
-      text = font.render("Press 'r' to restart", 1, (10, 10, 10))
-      textpos = text.get_rect()
-      textpos.centerx = self.background.get_rect().centerx
-      textpos.centery = self.background.get_rect().centery
       pygame.draw.rect(self.screen, (151, 156, 163), 
-                       Rect(textpos.x - 10, 
-                            textpos.y - 10, textpos.width + 20, textpos.height + 20))
-      self.screen.blit(text, textpos)
+                       Rect(self.restart_text_pos.x - 10, 
+                            self.restart_text_pos.y - 10, self.restart_text_pos.width + 20, self.restart_text_pos.height + 20))
+      self.screen.blit(self.restart_text, self.restart_text_pos)
 
-    font = pygame.font.Font(None, 36)
-    text = font.render(display_text, 1, (10, 10, 10))
-    textpos = text.get_rect()
-    textpos.centerx = self.background.get_rect().centerx
-    self.screen.blit(text, textpos)
+    self.screen.blit(self.display_text, self.display_text_pos)
   
   # Trata dos eventos
   def update(self):
@@ -141,7 +136,16 @@ class GameManager:
           if (next_position == self.fruit_position):
             self.score += 1
             self.snake_size += 1
-            self.update_rate = math.log(self.update_rate, 1.09)
+            self.update_rate *= 0.98
             self.random_fruit_position()
           else:
-            self.snake_position.pop(0) 
+            self.snake_position.pop(0)
+
+        self.display_text_message = str(self.score)
+    else:
+      self.display_text_message = "Game over! Your score: " + str(self.score)
+  
+    font = pygame.font.Font(None, 36)
+    self.display_text = font.render(self.display_text_message, 1, (10, 10, 10))
+    self.display_text_pos = self.display_text.get_rect()
+    self.display_text_pos.centerx = self.background.get_rect().centerx
